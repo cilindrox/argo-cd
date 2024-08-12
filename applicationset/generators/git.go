@@ -24,12 +24,14 @@ import (
 var _ Generator = (*GitGenerator)(nil)
 
 type GitGenerator struct {
-	repos services.Repos
+	repos     services.Repos
+	namespace string
 }
 
-func NewGitGenerator(repos services.Repos) Generator {
+func NewGitGenerator(repos services.Repos, namespace string) Generator {
 	g := &GitGenerator{
-		repos: repos,
+		repos:     repos,
+		namespace: namespace,
 	}
 	return g
 }
@@ -67,7 +69,7 @@ func (g *GitGenerator) GenerateParams(appSetGenerator *argoprojiov1alpha1.Applic
 	}
 
 	appProject := &argoprojiov1alpha1.AppProject{}
-	if err := client.Get(context.TODO(), types.NamespacedName{Name: appSet.Spec.Template.Spec.Project, Namespace: appSet.Namespace}, appProject); err != nil {
+	if err := client.Get(context.TODO(), types.NamespacedName{Name: appSet.Spec.Template.Spec.Project, Namespace: g.namespace}, appProject); err != nil {
 		return nil, fmt.Errorf("error getting project %s: %w", project, err)
 	}
 
